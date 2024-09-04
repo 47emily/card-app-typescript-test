@@ -13,8 +13,9 @@ describe("Example test", () => {
 // arbitrary test data
 const testTitle = "test-title"
 const testDesc = "test-desc"
-const testDate = new Date()
-const testEntryData = { title: testTitle, description: testDesc, created_at: testDate }
+const testCreationDate = new Date()
+const testScheduledDate = new Date(2024-1-1)
+const testEntryData = { title: testTitle, description: testDesc, created_at: testCreationDate, scheduled_for:  testScheduledDate}
 
 // Prisma client for testing
 const prisma = new PrismaClient()
@@ -59,7 +60,8 @@ describe('Real Server Tests', () => {
     expect(response.body).toHaveProperty('id');
     expect(response.body.title).toBe(testTitle);
     expect(response.body.description).toBe(testDesc);
-    expect(response.body.created_at).toBe(testDate.toISOString());
+    expect(response.body.created_at).toBe(testCreationDate.toISOString());
+    expect(response.body.scheduled_for).toBe(testScheduledDate.toISOString());
   });
 
   // test DELETE /delete/:id endpoint
@@ -69,17 +71,6 @@ describe('Real Server Tests', () => {
     const response = await request(server.server).delete(`/delete/${newEntry.id}`);
     expect(response.status).toBe(200);
     expect(response.body.msg).toBe('Deleted successfully');
-  });
-
-  // test PUT /update/:id endpoint - update title
-  // verifies success status and message
-  it('Update an entry by ID - update date', async () => {
-    const newEntry = await Prisma.entry.create({ data: testEntryData });
-    const response = await request(server.server)
-      .put(`/update/${newEntry.id}`)
-      .send({ created_at: new Date() });
-    expect(response.status).toBe(200);
-    expect(response.body.msg).toBe('Updated successfully');
   });
 
   // test PUT /update/:id endpoint - update title
@@ -104,13 +95,24 @@ describe('Real Server Tests', () => {
     expect(response.body.msg).toBe('Updated successfully');
   });
 
-  // test PUT /update/:id endpoint - update date
+  // test PUT /update/:id endpoint - update creation date
   // verifies success status and message
   it('Update an entry by ID - update date', async () => {
     const newEntry = await Prisma.entry.create({ data: testEntryData });
     const response = await request(server.server)
       .put(`/update/${newEntry.id}`)
       .send({ created_at: new Date(1999, 1, 1) });
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe('Updated successfully');
+  });
+
+  // test PUT /update/:id endpoint - update scheduled date
+  // verifies success status and message
+  it('Update an entry by ID - update date', async () => {
+    const newEntry = await Prisma.entry.create({ data: testEntryData });
+    const response = await request(server.server)
+      .put(`/update/${newEntry.id}`)
+      .send({ scheduled_for: new Date(2025-1-1) });
     expect(response.status).toBe(200);
     expect(response.body.msg).toBe('Updated successfully');
   });
