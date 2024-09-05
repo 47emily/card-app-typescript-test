@@ -18,18 +18,24 @@ export default function AllEntries(){
         <section className="grid grid-cols-2 md:grid-cols-4">
             {entries.map((entry: Entry, index: number) => {
                 return(
-                    <div id={entry.id} key={index}className="bg-gray-300 shadow-md shadow-gray-500 m-3 p-4 rounded flex flex-col justify-between">
-                        <h1 className="font-bold text-sm md:text-lg">{entry.title}</h1>
-                        <p className="text-center text-lg font-light md:mt-2 md:mb-4 mt-1 mb-3">{entry.description}</p>
-                        <section className="flex items-center justify-between flex-col md:flex-row pt-2 md:pt-0">
-                        <div className="flex justify-center">
-                            <button onClick={()=> {deleteEntry(entry.id as string)}} className="m-1 md:m-2 p-1 font-semibold rounded-md bg-red-500 hover:bg-red-700">✖</button>
-                            <button onClick={()=> {navigate(`/edit/${entry.id}`, { replace: true });}} className="m-1 md:m-2 p-1 font-semibold rounded-md bg-blue-500 hover:bg-blue-700">🖊</button>
+                    <div id={entry.id} key={index} className="bg-gray-300 shadow-md shadow-gray-500 m-3 p-4 rounded flex flex-col justify-between">
+                    <h1 className="font-bold text-sm md:text-lg">{entry.title}</h1>
+                    <p className="text-center text-lg font-light md:mt-2 md:mb-4 mt-1 mb-3">{entry.description}</p>
+                    <section className="flex flex-col md:flex-row pt-2 md:pt-0">
+                        <div className="flex flex-col md:w-1/2">
+                            <p className="text-center text-lg font-light mb-1">{"Created at:"}</p>
+                            <time className="text-center text-sm md:text-lg">{new Date(entry.created_at.toString()).toLocaleDateString()}</time>
                         </div>
-                        <time className="text-right text-sm md:text-lg">{new Date(entry.created_at.toString()).toLocaleDateString()}</time>
-                        </section>
-                        
+                        <div className="flex flex-col md:w-1/2 mt-4 md:mt-0">
+                            <p className="text-center text-lg font-light mb-1">{"Scheduled for:"}</p>
+                            <time className="text-center text-sm md:text-lg">{new Date(entry.scheduled_for.toString()).toLocaleDateString()}</time>
+                        </div>
+                    </section>
+                    <div className="flex justify-center mt-4">
+                        <button onClick={() => { deleteEntry(entry.id as string) }} className="m-1 md:m-2 p-1 font-semibold rounded-md bg-red-500 hover:bg-red-700">✖</button>
+                        <button onClick={() => { navigate(`/edit/${entry.id}`, { replace: true }); }} className="m-1 md:m-2 p-1 font-semibold rounded-md bg-blue-500 hover:bg-blue-700">🖊</button>
                     </div>
+                </div>
                 )
             })}
         </section>

@@ -17,6 +17,9 @@ const testCreationDate = new Date()
 const testScheduledDate = new Date(2024-1-1)
 const testEntryData = { title: testTitle, description: testDesc, created_at: testCreationDate, scheduled_for:  testScheduledDate}
 
+// for failure tests
+const fakeID = "fake-id"
+
 // Prisma client for testing
 const prisma = new PrismaClient()
 
@@ -25,10 +28,12 @@ describe('Real Server Tests', () => {
   beforeAll(async () => {
     // connect to the database before testing
     await server.listen(3001);
+    await prisma.entry.deleteMany();
   });
 
   afterAll(async () => {
     // disconnect from the database after tests finished
+    await prisma.entry.deleteMany();
     await prisma.$disconnect();
     server.close();
   });
@@ -97,7 +102,7 @@ describe('Real Server Tests', () => {
 
   // test PUT /update/:id endpoint - update creation date
   // verifies success status and message
-  it('Update an entry by ID - update date', async () => {
+  it('Update an entry by ID - update creation date', async () => {
     const newEntry = await Prisma.entry.create({ data: testEntryData });
     const response = await request(server.server)
       .put(`/update/${newEntry.id}`)
@@ -108,12 +113,38 @@ describe('Real Server Tests', () => {
 
   // test PUT /update/:id endpoint - update scheduled date
   // verifies success status and message
-  it('Update an entry by ID - update date', async () => {
+  it('Update an entry by ID - update scheduled date', async () => {
     const newEntry = await Prisma.entry.create({ data: testEntryData });
     const response = await request(server.server)
       .put(`/update/${newEntry.id}`)
       .send({ scheduled_for: new Date(2025-1-1) });
     expect(response.status).toBe(200);
     expect(response.body.msg).toBe('Updated successfully');
+  });
+
+
+  /// --------- FAILURE CASES -------
+  // test GET /get/:id endpoint with invalid ID
+  // verifies failure status
+  it('Fetch an entry by ID with invalid ID - expects err 500', async () => {
+    const response = await request(server.server).get(`/get/${fakeID}`);
+    expect(response.status).toBe(500);
+  });
+
+  
+  // test DELETE /delete/:id endpoint with invalid ID
+  // verifies failure status
+  it('Delete an entry by ID with invalid ID - expects err 500', async () => {
+    const response = await request(server.server).delete(`/delete/${fakeID}`);
+    expect(response.status).toBe(500);
+  });
+
+  // test PUT /update/:id endpoint with invalid ID
+  // verifies success status and message
+  it('Update an entry by ID (updating title) with invalid ID - expects err 500', async () => {
+    const response = await request(server.server)
+      .put(`/update/${fakeID}`)
+      .send({ title: "new-rand-title" });
+    expect(response.status).toBe(500);
   });
 });

@@ -11,7 +11,7 @@ export default function SettingsPanel (){
     const toggleDarkMode = () => {
         setIsDarkMode(prevMode => {
             const newMode = !prevMode;
-            localStorage.setItem('dark-mode', newMode); // Save the preference
+            localStorage.setItem('dark-mode', JSON.stringify(newMode)); // Save the preference
             return newMode;
         });
     };
